@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Methanol Costing Calculator</title>
+  <style>
+    :root {
+      --blue:#4472c4;
+      --dark:#1f4e78;
+      --light:#eef3f8;
+      --yellow:#fff2cc;
+      --green:#e2f0d9;
+      --border:#c8d0d9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+    }
+    .title {
+      background: var(--dark);
+      color: white;
+      padding: 18px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      border-radius: 12px 12px 0 0;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.07);
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 4px 0 12px;
+    }
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(190px,1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #aeb8c4;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .input-box input { background: var(--yellow); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px 10px;
+      text-align: right;
+    }
+    th:first-child, td:first-child { text-align:left; }
+    th {
+      background: var(--blue);
+      color: white;
+      font-size: 15px;
+    }
+    .strong { font-weight:700; }
+    .total { background: var(--green); font-weight:700; }
+    .selling { background: var(--yellow); font-weight:700; }
+    .profit { background:#d9ead3; font-weight:700; }
+    .price-input {
+      width: 130px;
+      text-align: right;
+      font-weight: 700;
+      background: #fffbe6;
+    }
+    .note {
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--light);
+      border-radius: 8px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .summary {
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:12px;
+    }
+    .summary div {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:14px;
+      text-align:center;
+    }
+    .summary b { display:block; font-size:20px; margin-top:5px; }
+    @media (max-width:800px){
+      .inputs,.summary { grid-template-columns:1fr; }
+      table { font-size:13px; }
+      .price-input { width:100px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">Methanol Costing & Margin Calculator</div>
+  <div class="card">
+    <div class="section-title">Cost Inputs</div>
+    <div class="inputs">
+      <div class="input-box"><label>Raw Material Cost (₹/kg)</label><input id="rm" type="number" step="0.01" value="50"></div>
+      <div class="input-box"><label>Processing Cost (₹/kg)</label><input id="processing" type="number" step="0.01" value="42"></div>
+      <div class="input-box"><label>Recovery (%)</label><input id="recovery" type="number" step="0.01" value="90"></div>
+      <div class="input-box"><label>Density (kg/L)</label><input id="density" type="number" step="0.001" value="0.791"></div>
+      <div class="input-box"><label>Bottle Size (L)</label><input id="bottleSize" type="number" step="0.01" value="2.5"></div>
+      <div class="input-box"><label>Monthly Bottles</label><input id="monthlyBottles" type="number" step="1" value="25000"></div>
+    </div>
+
+    <div class="section-title">Editable Selling Price — Change Any One</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Particular</th>
+          <th>Per Kg</th>
+          <th>Per Litre</th>
+          <th>Per 2.5 Litre Bottle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Raw Material Cost after Recovery</td>
+          <td id="rmKg"></td><td id="rmL"></td><td id="rmBottle"></td>
+        </tr>
+        <tr>
+          <td>Processing Cost</td>
+          <td id="procKg"></td><td id="procL"></td><td id="procBottle"></td>
+        </tr>
+        <tr class="total">
+          <td>Total Cost</td>
+          <td id="costKg"></td><td id="costL"></td><td id="costBottle"></td>
+        </tr>
+        <tr class="selling">
+          <td>Selling Price</td>
+          <td><input class="price-input" id="sellKg" type="number" step="0.01"></td>
+          <td><input class="price-input" id="sellL" type="number" step="0.01"></td>
+          <td><input class="price-input" id="sellBottle" type="number" step="0.01" value="205"></td>
+        </tr>
+        <tr class="profit">
+          <td>Margin / Profit (₹)</td>
+          <td id="profitKg"></td><td id="profitL"></td><td id="profitBottle"></td>
+        </tr>
+        <tr>
+          <td>Margin % on Cost</td>
+          <td id="marginCostKg"></td><td id="marginCostL"></td><td id="marginCostBottle"></td>
+        </tr>
+        <tr>
+          <td>Margin % on Selling Price</td>
+          <td id="marginSellKg"></td><td id="marginSellL"></td><td id="marginSellBottle"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="summary">
+      <div>Monthly Revenue<b id="monthlyRevenue"></b></div>
+      <div>Monthly Total Cost<b id="monthlyCost"></b></div>
+      <div>Monthly Profit<b id="monthlyProfit"></b></div>
+    </div>
+
+    <div class="note">
+      Change the selling price in <b>Per Kg</b>, <b>Per Litre</b>, or <b>Per 2.5 Litre Bottle</b>. The other two selling prices and all margins update instantly. A 2.5 L methanol bottle weighs about 1.9775 kg at density 0.791 kg/L.
+    </div>
+  </div>
+</div>
+
+<script>
+const ids = id => document.getElementById(id);
+const money = n => '₹' + (isFinite(n) ? n.toFixed(2) : '0.00');
+const percent = n => (isFinite(n) ? (n*100).toFixed(2) : '0.00') + '%';
+
+let lastEdited = 'bottle';
+
+function baseValues(){
+  const rm = parseFloat(ids('rm').value) || 0;
+  const processing = parseFloat(ids('processing').value) || 0;
+  const recovery = (parseFloat(ids('recovery').value) || 0) / 100;
+  const density = parseFloat(ids('density').value) || 0;
+  const bottleSize = parseFloat(ids('bottleSize').value) || 0;
+  const monthlyBottles = parseFloat(ids('monthlyBottles').value) || 0;
+  const bottleWeight = density * bottleSize;
+
+  const rmKg = recovery > 0 ? rm / recovery : 0;
+  const procKg = processing;
+  const costKg = rmKg + procKg;
+  const rmL = rmKg * density;
+  const procL = procKg * density;
+  const costL = costKg * density;
+  const rmBottle = rmL * bottleSize;
+  const procBottle = procL * bottleSize;
+  const costBottle = costL * bottleSize;
+
+  return {density,bottleSize,bottleWeight,monthlyBottles,rmKg,procKg,costKg,rmL,procL,costL,rmBottle,procBottle,costBottle};
+}
+
+function syncSelling(source){
+  const b = baseValues();
+  let kg=0,l=0,bottle=0;
+
+  if(source==='kg'){
+    kg = parseFloat(ids('sellKg').value) || 0;
+    l = kg * b.density;
+    bottle = l * b.bottleSize;
+  } else if(source==='litre'){
+    l = parseFloat(ids('sellL').value) || 0;
+    kg = b.density > 0 ? l / b.density : 0;
+    bottle = l * b.bottleSize;
+  } else {
+    bottle = parseFloat(ids('sellBottle').value) || 0;
+    l = b.bottleSize > 0 ? bottle / b.bottleSize : 0;
+    kg = b.bottleWeight > 0 ? bottle / b.bottleWeight : 0;
+  }
+
+  if(source!=='kg') ids('sellKg').value = kg.toFixed(2);
+  if(source!=='litre') ids('sellL').value = l.toFixed(2);
+  if(source!=='bottle') ids('sellBottle').value = bottle.toFixed(2);
+
+  render(b,kg,l,bottle);
+}
+
+function render(b,sellKg,sellL,sellBottle){
+  ids('rmKg').textContent=money(b.rmKg);
+  ids('rmL').textContent=money(b.rmL);
+  ids('rmBottle').textContent=money(b.rmBottle);
+  ids('procKg').textContent=money(b.procKg);
+  ids('procL').textContent=money(b.procL);
+  ids('procBottle').textContent=money(b.procBottle);
+  ids('costKg').textContent=money(b.costKg);
+  ids('costL').textContent=money(b.costL);
+  ids('costBottle').textContent=money(b.costBottle);
+
+  const pKg=sellKg-b.costKg, pL=sellL-b.costL, pB=sellBottle-b.costBottle;
+  ids('profitKg').textContent=money(pKg);
+  ids('profitL').textContent=money(pL);
+  ids('profitBottle').textContent=money(pB);
+
+  ids('marginCostKg').textContent=percent(b.costKg ? pKg/b.costKg : 0);
+  ids('marginCostL').textContent=percent(b.costL ? pL/b.costL : 0);
+  ids('marginCostBottle').textContent=percent(b.costBottle ? pB/b.costBottle : 0);
+
+  ids('marginSellKg').textContent=percent(sellKg ? pKg/sellKg : 0);
+  ids('marginSellL').textContent=percent(sellL ? pL/sellL : 0);
+  ids('marginSellBottle').textContent=percent(sellBottle ? pB/sellBottle : 0);
+
+  ids('monthlyRevenue').textContent=money(sellBottle*b.monthlyBottles);
+  ids('monthlyCost').textContent=money(b.costBottle*b.monthlyBottles);
+  ids('monthlyProfit').textContent=money(pB*b.monthlyBottles);
+}
+
+ids('sellKg').addEventListener('input',()=>{lastEdited='kg';syncSelling('kg')});
+ids('sellL').addEventListener('input',()=>{lastEdited='litre';syncSelling('litre')});
+ids('sellBottle').addEventListener('input',()=>{lastEdited='bottle';syncSelling('bottle')});
+
+['rm','processing','recovery','density','bottleSize','monthlyBottles'].forEach(id=>{
+  ids(id).addEventListener('input',()=>syncSelling(lastEdited));
+});
+
+syncSelling('bottle');
+</script>
+</body>
+</html>
